@@ -1,4 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VM.BettingApplication.Core.Repository;
+using VM.BettingApplication.Core.Entities;
+using Microsoft.EntityFrameworkCore;
+using VM.BettingApplication.Core.DTO;
+using VM.BettingApplication.Core.Services.Interface;
+using VM.BettingApplication.Core.Helpers;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,11 +14,22 @@ namespace VM.BettingApplication.API.Controllers
     [ApiController]
     public class TicketController : ControllerBase
     {
+        private readonly ITicketService _ticketService;
+
+        public TicketController(ITicketService ticketService)
+        {
+            _ticketService = ticketService;
+        }
+
         // GET: api/<TicketController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IEnumerable<Ticket>> Get()
         {
-            return new string[] { "value1", "value2" };
+            using(DatabaseContext databaseContext = DatabaseContext.GenerateContext("Host=localhost;Port=5432;Password=postgres;Username=postgres;Database=postgres"))
+            {
+                var tickets = await databaseContext.Tickets.Include(x => x.TicketBets).ToListAsync();
+                return tickets;
+            }
         }
 
         // GET api/<TicketController>/5
@@ -21,11 +38,17 @@ namespace VM.BettingApplication.API.Controllers
         {
             return "value";
         }
-
+        
         // POST api/<TicketController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("Payin")]
+        public async Task<IActionResult> PayinTicket([FromBody] PayinTicketRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new PayinTicketResponse { Message = ValidationMessages.InvalidRequest });
+            }
+            var result = await _ticketService.Payin(request);
+            return StatusCode(result.Success ? 201 : 400, result);
         }
 
         // PUT api/<TicketController>/5
