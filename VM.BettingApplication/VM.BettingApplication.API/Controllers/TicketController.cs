@@ -6,14 +6,14 @@ using VM.BettingApplication.Core.DTO;
 using VM.BettingApplication.Core.Services.Interface;
 using VM.BettingApplication.Core.Helpers;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace VM.BettingApplication.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class TicketController : ControllerBase
     {
+        private const int DEFAULT_TICKET_PAGE_SIZE = 10;
+
         private readonly ITicketService _ticketService;
 
         public TicketController(ITicketService ticketService)
@@ -21,26 +21,19 @@ namespace VM.BettingApplication.API.Controllers
             _ticketService = ticketService;
         }
 
-        // GET: api/<TicketController>
-        [HttpGet]
-        public async Task<IEnumerable<Ticket>> Get()
+        [HttpGet("GetTickets")]
+        public async Task<IEnumerable<Ticket>> GetTickets([FromQuery] int? pageSize, [FromQuery] int? pageNumber)
         {
-            using(DatabaseContext databaseContext = DatabaseContext.GenerateContext("Host=localhost;Port=5432;Password=postgres;Username=postgres;Database=postgres"))
-            {
-                var tickets = await databaseContext.Tickets.Include(x => x.TicketBets).ToListAsync();
-                return tickets;
-            }
+            return await _ticketService.GetTickets(
+                pageSize.HasValue ? pageSize.Value : DEFAULT_TICKET_PAGE_SIZE,
+                pageNumber.GetValueOrDefault()
+            );
         }
 
-        // GET api/<TicketController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
         
-        // POST api/<TicketController>
         [HttpPost("Payin")]
+        [ProducesResponseType(typeof(PayinTicketResponse), 201)]
+        [ProducesResponseType(typeof(PayinTicketResponse), 400)]
         public async Task<IActionResult> PayinTicket([FromBody] PayinTicketRequest request)
         {
             if (!ModelState.IsValid)
@@ -49,18 +42,6 @@ namespace VM.BettingApplication.API.Controllers
             }
             var result = await _ticketService.Payin(request);
             return StatusCode(result.Success ? 201 : 400, result);
-        }
-
-        // PUT api/<TicketController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<TicketController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

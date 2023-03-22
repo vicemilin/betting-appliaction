@@ -6,7 +6,9 @@ namespace VM.BettingApplication.Core.Services.Interface
 {
 	public interface ITicketService
 	{
-		Task<PayinTicketResponse> Payin(PayinTicketRequest request);
+		Task<IEnumerable<Ticket>> GetTickets(int pageSize, int pageNumber);
+
+        Task<PayinTicketResponse> Payin(PayinTicketRequest request);
 	}
 }
 

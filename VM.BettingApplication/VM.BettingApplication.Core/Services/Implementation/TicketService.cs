@@ -24,6 +24,22 @@ namespace VM.BettingApplication.Core.Services.Implementation
             _offerService = offerService;
 		}
 
+        public async Task<IEnumerable<Ticket>> GetTickets(int pageSize, int pageNumber)
+        {
+            using (DatabaseContext databaseContext =
+                DatabaseContext.GenerateContext(_appSettings.DatabaseConnectionString))
+            {
+                var tickets = await databaseContext.Tickets
+                    .Include(x => x.TicketBets)
+                    .OrderByDescending(x => x.PayinTime)
+                    .Skip(pageNumber * pageSize)
+                    .Take(pageSize)
+                    .ToArrayAsync();
+
+                return tickets;
+            }
+        }
+
         public async Task<PayinTicketResponse> Payin(PayinTicketRequest request)
         {
             if(request.PayinAmount < _appSettings.MinPayinAmount)
@@ -36,13 +52,8 @@ namespace VM.BettingApplication.Core.Services.Implementation
             }
 
             var offerValidationResult = await _offerService.ValidateOffer(request.TicketBets);
-            if (!offerValidationResult.IsValid)
-                return new PayinTicketResponse
-                {
-                    Success = false,
-                    Message = ValidationMessages.OfferValidationFailed,
-                    ValidationResult = offerValidationResult
-                };
+            if (!offerValidationResult.Success)
+                return offerValidationResult;
 
             var ticket = new Ticket
             {

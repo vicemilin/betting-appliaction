@@ -18,7 +18,7 @@ namespace VM.BettingApplication.Core.Services.Interface
 
 		Task<Event> AddToTopOffer(Guid eventId);
 
-		Task<OfferValidationResult> ValidateOffer(PayinTicketBets[] payinTicketBets);
+		Task<PayinTicketResponse> ValidateOffer(PayinTicketBets[] payinTicketBets);
     }
 }
 

@@ -37,7 +37,7 @@ namespace VM.BettingApplication.API.Services
         {
             var currentEventsCount = await _offerService.GetNumberOfEventsForToday();
 
-            var minTime = DateTime.UtcNow.Date; //start of day
+            var minTime = DateTime.Now.Date; //start of day
             var maxTime = minTime.AddDays(1).AddTicks(-1); //end of day
 
             var newEvents = new List<Event>();
@@ -55,7 +55,7 @@ namespace VM.BettingApplication.API.Services
                         teams = _appSettings.BasketballTeams;
                         break;
                     case "Tennis":
-                        teams = _appSettings.BasketballTeams;
+                        teams = _appSettings.TennisPlayers;
                         break;
                     default:
                         break;
@@ -63,7 +63,7 @@ namespace VM.BettingApplication.API.Services
                 
 
                 var result = OfferGenerator.GenerateEvents(
-                    minTime,
+                    DateTime.Now,
                     maxTime,
                     _appSettings.NumberOfEventsPerSportPerDay - e.Value,
                     teams,

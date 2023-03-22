@@ -34,6 +34,7 @@ namespace VM.BettingApplication.Core.Services.Implementation
 
                 return await databaseContext.Events
                     .Where(x => x.StartTime > timeLimit)
+                    .OrderBy(x => x.StartTime)
                     .Include(x => x.Picks)
                     .Include(x => x.Sport)
                     .ToArrayAsync();
@@ -114,7 +115,7 @@ namespace VM.BettingApplication.Core.Services.Implementation
                         Id = Guid.NewGuid(),
                         Status = x.Status,
                         PickName = x.PickName,
-                        EventId = x.EventId,
+                        EventId = newEvent.Id,
                         Odds =
                         Math.Round((1 + (_appSettings.TopOfferOddsBoostPercentage / 100)) * x.Odds, 2)
                     };
@@ -129,12 +130,12 @@ namespace VM.BettingApplication.Core.Services.Implementation
             }
         }
 
-        public async Task<OfferValidationResult> ValidateOffer(PayinTicketBets[] payinTicketBets)
+        public async Task<PayinTicketResponse> ValidateOffer(PayinTicketBets[] payinTicketBets)
         {
             using (DatabaseContext databaseContext =
                 DatabaseContext.GenerateContext(_appSettings.DatabaseConnectionString))
             {
-                var result = new OfferValidationResult
+                var result = new PayinTicketResponse
                 {
                 };
 
@@ -145,6 +146,13 @@ namespace VM.BettingApplication.Core.Services.Implementation
                     .Where(x => pickIds.Contains(x.Id))
                     .Include(x => x.Event)
                     .ToArrayAsync();
+
+                if(picks.Count() != pickIds.Count())
+                {
+                    result.Success = false;
+                    result.Message = ValidationMessages.OfferValidationFailed;
+                    return result;
+                }
 
                 var picksValidation = payinTicketBets.Select(x =>
                 {
@@ -182,11 +190,19 @@ namespace VM.BettingApplication.Core.Services.Implementation
 
                 }).ToArray();
 
+                if(picksValidation.Any(x => !x.IsValid))
+                {
+                    result.PickResults = picksValidation;
+                    result.Success = false;
+                    result.Message = ValidationMessages.OfferValidationFailed;
+                    return result;
+                }
+
                 if(
                     picks.Count(x => x.Event.IsTopOffer) > _appSettings.MaxEventsFromTopOffer ||
                     picks.Any(x => picks.Any(y => y.Event.IsTopOffer && y.Event.LinkedId == x.EventId)))
                 {
-                    result.IsValid = false;
+                    result.Success = false;
                     result.Message = ValidationMessages.CombinationNotAllowed;
                     return result;
                 }
@@ -196,20 +212,20 @@ namespace VM.BettingApplication.Core.Services.Implementation
                     var nonTopOfferPicks = picks.Where(x => !x.Event.IsTopOffer);
                     if(nonTopOfferPicks.Count() < _appSettings.MinimumEventsWithTopOffer)
                     {
-                        result.IsValid = false;
+                        result.Success = false;
                         result.Message = ValidationMessages.CombinationNotAllowed;
                         return result;
                     }
 
                     if(nonTopOfferPicks.Any(x => x.Odds < _appSettings.MinimumOddsWithTopOffer))
                     {
-                        result.IsValid = false;
+                        result.Success = false;
                         result.Message = ValidationMessages.CombinationNotAllowed;
                         return result;
                     }
                 }
 
-                result.IsValid = true;
+                result.Success = true;
                 return result;
             }
         }
