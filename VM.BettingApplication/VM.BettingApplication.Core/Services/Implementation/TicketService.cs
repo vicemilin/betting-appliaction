@@ -14,14 +14,17 @@ namespace VM.BettingApplication.Core.Services.Implementation
 	{
         private readonly ApplicationSettings _appSettings;
         private readonly IOfferService _offerService;
+        private readonly IWalletService _walletService;
 
 		public TicketService(
             IOptions<ApplicationSettings> appSettings,
-            IOfferService offerService
+            IOfferService offerService,
+            IWalletService walletService
         )
 		{
             _appSettings = appSettings.Value;
             _offerService = offerService;
+            _walletService = walletService;
 		}
 
         public async Task<IEnumerable<Ticket>> GetTickets(int pageSize, int pageNumber)
@@ -72,6 +75,21 @@ namespace VM.BettingApplication.Core.Services.Implementation
                     TicketId = request.TransactionId.Value
                 };
             }).ToArray();
+
+            var walletTransactionResult = await _walletService.AddTransaction(
+                new AddTransactionRequest {
+                    Amount = request.PayinAmount,
+                    TransactionId = request.TransactionId,
+                    Type = WalletTransactionType.Debit
+                });
+
+            if(!walletTransactionResult.Success) {
+                return new PayinTicketResponse
+                {
+                    Success = false,
+                    Message = walletTransactionResult.Message
+                };
+            }
 
             using (DatabaseContext databaseContext =
                 DatabaseContext.GenerateContext(_appSettings.DatabaseConnectionString))

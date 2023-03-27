@@ -15,6 +15,7 @@ namespace VM.BettingApplication.Core.Repository
         public virtual DbSet<Sport> Sports { get; set; }
         public virtual DbSet<Event> Events { get; set; }
         public virtual DbSet<Pick> Picks { get; set; }
+        public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
@@ -29,6 +30,7 @@ namespace VM.BettingApplication.Core.Repository
             builder.Entity<Sport>().HasKey(x => x.Id);
             builder.Entity<Event>().HasKey(x => x.Id);
             builder.Entity<Pick>().HasKey(x => x.Id);
+            builder.Entity<WalletTransaction>().HasKey(x => x.Id);
 
             #endregion
 
@@ -65,6 +67,12 @@ namespace VM.BettingApplication.Core.Repository
                 .HasConversion(
                     x => (short)x, 
                     x => (TicketStatus)x);
+
+            builder.Entity<WalletTransaction>()
+                .Property(x => x.TransactionType)
+                .HasConversion(
+                    x => (short)x,
+                    x => (WalletTransactionType)x);
 
             builder.Entity<Sport>()
                 .Property(x => x.AvailablePicks)

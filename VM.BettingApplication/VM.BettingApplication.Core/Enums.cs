@@ -10,7 +10,7 @@ namespace VM.BettingApplication.Core
         InProgress = 2
     }
 
-    public enum WalletTransaction
+    public enum WalletTransactionType
     {
         Debit = -1,
         Credit = 1

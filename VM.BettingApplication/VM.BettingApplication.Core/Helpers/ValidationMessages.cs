@@ -11,6 +11,8 @@ namespace VM.BettingApplication.Core.Helpers
         public const string InvalidOdds = "InvalidOdds";
         public const string EventAlreadyStarted = "EventAlreadyStarted";
         public const string CombinationNotAllowed = "CombinationNotAllowed";
+        public const string NotEnoughMoney = "NotEnoughMoney";
+        public const string InvalidAmount = "InvalidAmount";
     }
 }
 

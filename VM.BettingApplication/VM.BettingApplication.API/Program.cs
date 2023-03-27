@@ -16,6 +16,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IOfferService, OfferService>();
 builder.Services.AddSingleton<ISportService, SportService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddHostedService<OfferHostedService>();
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("ApplicationSettings"));
 

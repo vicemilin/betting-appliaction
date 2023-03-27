@@ -163,5 +163,25 @@ namespace VM.BettingApplication.Migrations.Migrations
             throw new NotImplementedException();
         }
     }
+
+    [Migration(202303271200)]
+    public class Migration_20230327_AddTransactionTable : Migration
+    {
+
+        public override void Up()
+        {
+            Create.Table("wallet_transaction").InSchema("sport")
+                .WithColumn("id").AsGuid().PrimaryKey()
+                .WithColumn("type").AsInt16()
+                .WithColumn("amount").AsDecimal()
+                .WithColumn("transaction_date_time").AsDateTime()
+                .WithColumn("current_state").AsDecimal();
+        }
+
+        public override void Down()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
