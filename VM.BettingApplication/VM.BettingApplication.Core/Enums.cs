@@ -9,5 +9,11 @@ namespace VM.BettingApplication.Core
         Won = 1,
         InProgress = 2
     }
+
+    public enum WalletTransaction
+    {
+        Debit = -1,
+        Credit = 1
+    }
 }
 

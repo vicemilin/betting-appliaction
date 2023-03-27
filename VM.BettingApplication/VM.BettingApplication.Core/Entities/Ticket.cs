@@ -38,14 +38,17 @@ namespace VM.BettingApplication.Core.Entities
 		[Column("odds")]
 		public decimal Odds { get; set; }
 
-        //[Column("pick_id")]
-        //public Guid PickId { get; set; }
+		[Column("pick_id")]
+        [ForeignKey("fk_ticket_bet_pick")]
+        public Guid PickId { get; set; }
 
-        [Column("status")]
+		[Column("status")]
         public TicketStatus Status { get; set; }
 
 		[System.Text.Json.Serialization.JsonIgnore]
         public virtual Ticket Ticket { get; set; }
+
+		public virtual Pick Pick { get; set; }
     }
 }
 

@@ -47,6 +47,9 @@ namespace VM.BettingApplication.Core.Repository
             builder.Entity<Event>()
                 .HasOne<Sport>(x => x.Sport);
 
+            builder.Entity<TicketBet>()
+                .HasOne<Pick>(x => x.Pick);
+
             #endregion
 
             #region Conversions

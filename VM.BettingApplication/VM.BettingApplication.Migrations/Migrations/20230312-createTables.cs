@@ -146,5 +146,22 @@ namespace VM.BettingApplication.Migrations.Migrations
             throw new NotImplementedException();
         }
     }
+
+    [Migration(202303251800)]
+    public class Migration_20230325_addPickToTicketBetTable : Migration
+    {
+
+        public override void Up()
+        {
+            Alter.Table("ticket_bet").InSchema("sport")
+                .AddColumn("pick_id")
+                .AsGuid().ForeignKey("fk_ticket_bet_pick", "sport", "pick", "id");
+        }
+
+        public override void Down()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
