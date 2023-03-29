@@ -1,0 +1,30 @@
+.betting-page-main-container {
+    display: flex;
+    flex-direction: row;
+    width: 98vw;
+    height: 98vh;
+    padding: 10px 10px 10px 10px;
+    justify-content: space-between;
+}
+
+.betting-page-offer {
+    width: 70%;
+}
+
+.betting-page-betslip {
+    width: 25%;
+    display: flex;
+    flex-direction: column;
+}
+
+.betting-page-betslip-element {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    border: solid 1px black;
+}
+
+.betting-page-betslip-inputs-container {
+    display: flex;
+    flex-direction: column;
+}

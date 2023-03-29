@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { createContext, useMemo, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 
@@ -9,6 +8,7 @@ const ApiContext = createContext(null);
 
 function ApiProvider({ children }) {
   const [errorMessage, setErrorMessage] = useState("");
+  const [infoMessage, setInfoMessage] = useState("");
 
   const getErrorMessage = (err) => {
     const errorMessage = err.response?.data?.message;
@@ -33,11 +33,26 @@ function ApiProvider({ children }) {
     }
   };
 
+  const showErrorMessage = (message) => {
+    setErrorMessage(message);
+    setTimeout(() => setErrorMessage(null), 7000);
+  }
+
+  const showInfoMessage = (message) => {
+    setInfoMessage(message);
+    setTimeout(() => setInfoMessage(null), 7000);
+  }
+
   return (
-    <ApiContext.Provider value={useMemo(() => ({ fetchData }), [fetchData])}>
+    <ApiContext.Provider value={useMemo(() => ({ fetchData, showErrorMessage, showInfoMessage }), [fetchData, showErrorMessage, showInfoMessage])}>
       <Snackbar open={!!errorMessage}>
         <Alert severity="error" sx={{ width: "100%" }}>
           {errorMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar open={!!infoMessage}>
+        <Alert severity="info" sx={{ width: "100%" }}>
+          {infoMessage}
         </Alert>
       </Snackbar>
       {children}

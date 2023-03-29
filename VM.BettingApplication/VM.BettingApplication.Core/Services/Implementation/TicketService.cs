@@ -72,7 +72,8 @@ namespace VM.BettingApplication.Core.Services.Implementation
                     Id = Guid.NewGuid(),
                     Status = TicketStatus.InProgress,
                     Odds = x.Odds.Value,
-                    TicketId = request.TransactionId.Value
+                    TicketId = request.TransactionId.Value,
+                    PickId = x.PickId.Value
                 };
             }).ToArray();
 
