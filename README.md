@@ -58,7 +58,7 @@ This application is sample online sports betting application. It has following f
 
 5. run migrations using: 
    ``` 
-   dotnet run --project VM.BettingApplication.Migrations/VM.BettingApplication.Migrations.csproj
+   dotnet run --project VM.BettingApplication.Migrations/VM.BettingApplication.Migrations.csproj d="Host=localhost;Port=5432;Password=postgres;Username=postgres;Database=postgres"
    ```
 
 6. run API using
