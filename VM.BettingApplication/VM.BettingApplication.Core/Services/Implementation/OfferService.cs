@@ -30,7 +30,7 @@ namespace VM.BettingApplication.Core.Services.Implementation
         {
             using(DatabaseContext databaseContext = DatabaseContext.GenerateContext(_appSettings.DatabaseConnectionString))
             {
-                var timeLimit = DateTime.UtcNow;
+                var timeLimit = DateTime.Now;
 
                 return await databaseContext.Events
                     .Where(x => x.StartTime > timeLimit)

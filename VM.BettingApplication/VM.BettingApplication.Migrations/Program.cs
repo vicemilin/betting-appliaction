@@ -12,7 +12,8 @@ namespace VM.BettingApplication.Migrations
     {
         static void Main(string[] args)
         {
-            using (var serviceProvider = CreateServices())
+            var connectionString = GetConnectionString(args);
+            using (var serviceProvider = CreateServices(connectionString))
             using (var scope = serviceProvider.CreateScope())
             {
                 // Put the database update into a scope to ensure
@@ -24,7 +25,7 @@ namespace VM.BettingApplication.Migrations
         /// <summary>
         /// Configure the dependency injection services
         /// </summary>
-        private static ServiceProvider CreateServices()
+        private static ServiceProvider CreateServices(string connectionString)
         {
             return new ServiceCollection()
                 // Add common FluentMigrator services
@@ -33,7 +34,7 @@ namespace VM.BettingApplication.Migrations
                     // Add Postgres support to FluentMigrator
                     .AddPostgres()
                     // Set the connection string
-                    .WithGlobalConnectionString("Host=localhost;Port=5432;Password=postgres;Username=postgres;Database=postgres")
+                    .WithGlobalConnectionString(connectionString)
                     // Define the assembly containing the migrations
                     .ScanIn(typeof(Migrations.Migration_20230312_createTicketTables).Assembly).For.Migrations())
                 // Enable logging to console in the FluentMigrator way
@@ -52,6 +53,20 @@ namespace VM.BettingApplication.Migrations
 
             // Execute the migrations
             runner.MigrateUp();
+        }
+
+        private static string GetConnectionString(string[] args)
+        {
+            var connectionString = args.FirstOrDefault(x => x.StartsWith("d="));
+            if (connectionString == null)
+                throw new ArgumentException("Please provide connection string!");
+
+
+            var result = connectionString.Substring(2);
+            if(String.IsNullOrWhiteSpace(result))
+                throw new ArgumentException("Invalid connection string!");
+
+            return result;
         }
     }
 }
